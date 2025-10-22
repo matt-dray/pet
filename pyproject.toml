@@ -15,15 +15,20 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest", 
-    "ruff>=0.11.10",
+    "pytest",
+    "ruff>=0.12.11",
+    "ty>=0.0.1-alpha.23",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff>=0.12.11",
+    "ty>=0.0.1-alpha.23",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-
-[tool.uv.dev-dependencies]
-pytest = "*"
 
 [project.scripts]
 pet = "pet.cli:main"
