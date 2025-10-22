@@ -22,6 +22,9 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
+[tool.uv.dev-dependencies]
+pytest = "*"
+
 [project.scripts]
 pet = "pet.cli:main"
 
