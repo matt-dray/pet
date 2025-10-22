@@ -1,6 +1,6 @@
 [project]
 name = "pet"
-version = "0.1.0"
+version = "0.0.0.9000"
 description = "A virtual pet that lives on the command line and is remembered between terminal sessions."
 readme = "README.md"
 requires-python = ">=3.12"
