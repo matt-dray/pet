@@ -1,0 +1,23 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Ruff
+.ruff_cache/
+
+# OS related
+.DS_Store
+
+# README related
+README.html
+README_files/
+
+# Potential pet-related files
+pet.json
