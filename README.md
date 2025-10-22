@@ -10,6 +10,6 @@ A proof-of-concept to learn more about packaging-up command-line interfaces (CLI
 
 To get started:
 
-1. Run `uv pip install git+https://github.com/matt-dray/pet.git`.
+1. Run `uv tool install git+https://github.com/matt-dray/pet.git`.
 2. Run `pet`.
 3. Take responsibility.
