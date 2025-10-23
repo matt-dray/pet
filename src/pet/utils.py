@@ -1,5 +1,5 @@
 """
-Handle pet data.
+Read, write and handle pet data from a stats file on disk.
 """
 
 import datetime as dt
@@ -7,77 +7,83 @@ import json
 from pathlib import Path
 
 
-def write_pet_data(pet_data_path: Path, name: str, timestamp: dt.datetime) -> None:
+def write_stats(stats_path: Path, name: str, timestamp: dt.datetime) -> None:
     """
-    Write pet data.
+    Write pet data to a stats file on disk.
 
     Args:
-        pet_data_path (Path): The path to the pet data file.
-        name (str): The pet name.
-        timestamp (datettime.datetime) The date-time of pet data creation.
+        stats_path (Path): The path to the stats file.
+        name (str): The pet's name.
+        timestamp (datettime.datetime) The datetime of the pet's birth.
 
     Returns:
-        None: Writes to disk.
+        None: Data written to disk.
     """
     json_dict = {"NAME": name, "TIMESTAMP": timestamp.isoformat()}
-    pet_data_path.parent.mkdir(parents=True, exist_ok=True)
-    with pet_data_path.open("w", encoding="utf-8") as f:
+    stats_path.parent.mkdir(parents=True, exist_ok=True)
+    with stats_path.open("w", encoding="utf-8") as f:
         json.dump(json_dict, f)
 
 
-def read_pet_data(pet_data_path: Path) -> dict:
+def read_stats(stats_path: Path) -> dict:
     """
-    Read pet data.
+    Read pet data from the stats file on disk.
 
     Args:
-        pet_data_path (Path): The path to the pet data file.
+        stats_path (Path): The path to the stats file.
 
     Returns:
-        dict: Pet data.
+        dict: 'NAME' (str) and 'TIMESTAMP' (str) keys.
     """
-    pet_data_text = pet_data_path.read_text(encoding="utf-8")
-    pet_data_json = json.loads(pet_data_text)
-    return pet_data_json
+    stats_text = stats_path.read_text(encoding="utf-8")
+    stats_json = json.loads(stats_text)
+    return stats_json
 
 
-def delete_pet_data(pet_data_path: Path) -> None:
+def delete_stats(stats_path: Path) -> None:
     """
-    Delete pet data.
+    Delete the stats file on disk.
 
     Args:
-        pet_data_path (Path): The path to the pet data file.
+        stats_path (Path): The path to the stats file.
 
     Returns:
-        None: Pet data on disk deleted.
+        None: Data deleted from disk.
     """
-    if pet_data_path.exists():
-        pet_data_path.unlink()
+    if stats_path.exists():
+        stats_path.unlink()
 
 
-def extract_timestamp(timestamp: str) -> str:
+def get_birth_datetime(timestamp: str) -> dict:
     """
-    Extract timestamp from pet data.
+    Extract the pet's birth date and time.
 
     Args:
-        timestamp (str): The path to the pet data file.
+        timestamp (str): The datetime of the pet's birth.
 
     Returns:
-        str: Formatted date-time.
+        dict: 'DATE' (chr) and 'TIME' (chr) keys.
     """
     timestamp_iso = dt.datetime.fromisoformat(timestamp)
-    return timestamp_iso.strftime("%d %B %Y at %H:%M:%S")
+    date = timestamp_iso.strftime("%d %b %Y")
+    time = timestamp_iso.strftime("%H:%M")
+    return {"DATE": date, "TIME": time}
 
 
-def calculate_time_delta(timestamp: str) -> int:
+def get_birth_delta(timestamp: str) -> dict:
     """
-    Calculate difference between now and timestamp from pet data.
+    Calculate the difference between the pet's birth and now.
 
     Args:
-        timestamp (str): The path to the pet data file.
+        timestamp (str): The datetime of the pet's birth.
 
     Returns:
-        int: Elapsed time in seconds.
+        dict: 'HOURS' (int) and 'MINS' (int) keys.
     """
     timestamp_iso = dt.datetime.fromisoformat(timestamp)
     delta = dt.datetime.now() - timestamp_iso
-    return int(delta.total_seconds())
+    seconds = delta.total_seconds()
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+
+    return {"HOURS": int(hours), "MINS": int(minutes)}
