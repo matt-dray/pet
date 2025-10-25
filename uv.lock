@@ -44,7 +44,7 @@ wheels = [
 
 [[package]]
 name = "pet"
-version = "0.0.0.9000"
+version = "0.0.0.9001"
 source = { editable = "." }
 dependencies = [
     { name = "inquirerpy" },

@@ -1,5 +1,6 @@
 """
-CLI entry with user input.
+Command-line interface (CLI) for interacting with pet statistics.
+Accepts user input to read, write or delete pet data.
 """
 
 import datetime as dt
