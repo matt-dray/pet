@@ -35,9 +35,10 @@ def main():
         if action == "Check":
             birth = get_birth_datetime(stats["TIMESTAMP"])
             age = get_birth_delta(stats["TIMESTAMP"])
-            print(f"Name:  {stats['NAME']}")
-            print(f"Birth: {birth['DATE']} at {birth['TIME']}")
-            print(f"Age:   {age['HOURS']} hrs {age['MINS']} mins")
+            print(f"Name:   {stats['NAME']}")
+            print(f"Birth:  {birth['DATE']} at {birth['TIME']}")
+            print(f"Age:    {age['HOURS']} hrs {age['MINS']} mins")
+            print(f"Health: {stats['HP']} HP")
 
         if action == "Delete":
             delete_stats(stats_path)
