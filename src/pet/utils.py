@@ -1,25 +1,31 @@
 """
-Functions to read, write, and manage pet statistics stored in a JSON stats file on disk.
+Functions to manage pet stats stored in a JSON file on disk.
 """
 
-import datetime as dt
+import datetime
 import json
 from pathlib import Path
 
 
-def write_stats(stats_path: Path, name: str, timestamp: dt.datetime) -> None:
+def init_stats(stats_path: Path, name: str) -> None:
     """
-    Write pet statistics to a JSON file.
+    Write initial pet stats to a JSON file on disk.
 
     Args:
-        stats_path (Path): Path to the pet's stats file.
-        name (str): The pet's name.
-        timestamp (datetime.datetime) The datetime of the pet's birth.
+        stats_path (Path): Path to where the pet's stats json file will be written.
+        name (str): The pet's name provided by the user.
 
     Returns:
         None: File is written to disk.
     """
-    json_dict = {"NAME": name, "TIMESTAMP": timestamp.isoformat(), "HP": 10}
+    timestamp_iso_str = datetime.datetime.now().isoformat()
+    json_dict = {
+        "NAME": name,
+        "BORN": timestamp_iso_str,
+        "LAST": timestamp_iso_str,
+        "AGE": 0,
+        "HEALTH": 10,
+    }
     stats_path.parent.mkdir(parents=True, exist_ok=True)
     with stats_path.open("w", encoding="utf-8") as f:
         json.dump(json_dict, f)
@@ -27,7 +33,7 @@ def write_stats(stats_path: Path, name: str, timestamp: dt.datetime) -> None:
 
 def read_stats(stats_path: Path) -> dict:
     """
-    Read pet statistics from a JSON file.
+    Read pet statistics from a JSON file on disk.
 
     Args:
         stats_path (Path): Path to the pet's stats file.
@@ -35,8 +41,10 @@ def read_stats(stats_path: Path) -> dict:
     Returns:
         dict: A dictionary containing the pet's statistics with keys:
             - 'NAME' (str): The pet's name.
-            - 'TIMESTAMP' (str): The datetime of the pet's birth.
-            - 'HP' (int): The pet's health points.
+            - 'BORN' (str): The datetime of the pet's birth.
+            - 'LAST' (str): The datetime of your last interaction with the pet.
+            - 'AGE' (int): The pet's age in days.
+            - 'HEALTH' (int): The pet's health value (out of 10).
     """
     stats_text = stats_path.read_text(encoding="utf-8")
     stats_json = json.loads(stats_text)
@@ -57,7 +65,7 @@ def delete_stats(stats_path: Path) -> None:
         stats_path.unlink()
 
 
-def get_birth_datetime(timestamp: str) -> dict:
+def get_datetime(timestamp: str) -> dict:
     """
     Extract the pet's birth date and time from a timestamp string.
 
@@ -69,29 +77,48 @@ def get_birth_datetime(timestamp: str) -> dict:
             - 'DATE' (str): The date portion of the timestamp.
             - 'TIME' (str): The time portion of the timestamp.
     """
-    timestamp_iso = dt.datetime.fromisoformat(timestamp)
+    timestamp_iso = datetime.datetime.fromisoformat(timestamp)
     date = timestamp_iso.strftime("%d %b %Y")
     time = timestamp_iso.strftime("%H:%M")
     return {"DATE": date, "TIME": time}
 
 
-def get_birth_delta(timestamp: str) -> dict:
+def update_latest_time(stats: dict, stats_path: Path) -> None:
     """
-    Calculate the time difference between the pet's birth and the current time.
+    Write the current time to the stats json file on disk.
 
     Args:
-        timestamp (str): The timestamp of the pet's birth.
+        stats (dict): Pet stats read from the stats json file on disk.
+        stats_path (Path): Path to where the pet's stats json file will be written.
 
     Returns:
-        dict: A dictionary with keys:
-            - 'HOURS' (int): The number of hours since birth.
-            - 'MINS' (int): The number of minutes after the number of hours since birth.
+        None: File is written to disk.
     """
+    stats["LAST"] = datetime.datetime.now().isoformat()
+    with stats_path.open("w", encoding="utf-8") as f:
+        json.dump(stats, f)
 
-    timestamp_iso = dt.datetime.fromisoformat(timestamp)
-    delta = dt.datetime.now() - timestamp_iso
-    seconds = delta.total_seconds()
-    hours = seconds // 3600
-    minutes = (seconds % 3600) // 60
 
-    return {"HOURS": int(hours), "MINS": int(minutes)}
+def update_age(stats: dict, stats_path: Path) -> None:
+    """
+    Record difference in days between birth and last user interaction.
+
+    Args:
+        stats (dict): Pet stats read from the stats json file on disk.
+        stats_path (Path): Path to where the pet's stats json file will be written.
+
+    Returns:
+        None: File is written to disk.
+    """
+    born_dt = datetime.datetime.fromisoformat(stats["BORN"])
+    last_dt = datetime.datetime.fromisoformat(stats["LAST"])
+    age_dt = last_dt - born_dt
+    stats["AGE"] = age_dt.days
+    with stats_path.open("w", encoding="utf-8") as f:
+        json.dump(stats, f)
+
+
+# def calculate_hp_lost(birth_delta: str, current_hp: int) -> int:
+
+
+# def write_to_stats(key: str, value: str) -> None:
