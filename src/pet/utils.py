@@ -18,12 +18,13 @@ def init_stats(stats_path: Path, name: str) -> None:
     Returns:
         None: File is written to disk.
     """
-    timestamp_iso_str = datetime.datetime.now().isoformat()
+    timestamp_now = datetime.datetime.now().isoformat()
     json_dict = {
         "NAME": name,
-        "BORN": timestamp_iso_str,
-        "LAST": timestamp_iso_str,
-        "AGE": 0,
+        "BORN": timestamp_now,
+        "LAST": timestamp_now,
+        "DELTA": 0,  # mins
+        "AGE": 0,  # days
         "HEALTH": 10,
     }
     stats_path.parent.mkdir(parents=True, exist_ok=True)
@@ -42,7 +43,8 @@ def read_stats(stats_path: Path) -> dict:
         dict: A dictionary containing the pet's statistics with keys:
             - 'NAME' (str): The pet's name.
             - 'BORN' (str): The datetime of the pet's birth.
-            - 'LAST' (str): The datetime of your last interaction with the pet.
+            - 'LAST' (str): The datetime of the last interaction with the pet.
+            - 'DELTA' (str): Difference in minutes from last interaction to now.
             - 'AGE' (int): The pet's age in days.
             - 'HEALTH' (int): The pet's health value (out of 10).
     """
@@ -67,15 +69,15 @@ def delete_stats(stats_path: Path) -> None:
 
 def get_datetime(timestamp: str) -> dict:
     """
-    Extract the pet's birth date and time from a timestamp string.
+    Extract a date and time from an ISO timestamp string.
 
     Args:
-        timestamp (str): The timestamp of the pet's birth.
+        timestamp (str): The ISO string timestamp for conversion.
 
     Returns:
         dict: A dictionary with keys:
-            - 'DATE' (str): The date portion of the timestamp.
-            - 'TIME' (str): The time portion of the timestamp.
+            - 'DATE' (str): The date portion of the ISO timestamp.
+            - 'TIME' (str): The time portion of the ISO timestamp.
     """
     timestamp_iso = datetime.datetime.fromisoformat(timestamp)
     date = timestamp_iso.strftime("%d %b %Y")
@@ -83,9 +85,9 @@ def get_datetime(timestamp: str) -> dict:
     return {"DATE": date, "TIME": time}
 
 
-def update_latest_time(stats: dict, stats_path: Path) -> None:
+def update_time_stats(stats: dict, stats_path: Path) -> None:
     """
-    Write the current time to the stats json file on disk.
+    Overwrite time-related keys in the stats json file on disk.
 
     Args:
         stats (dict): Pet stats read from the stats json file on disk.
@@ -94,14 +96,23 @@ def update_latest_time(stats: dict, stats_path: Path) -> None:
     Returns:
         None: File is written to disk.
     """
-    stats["LAST"] = datetime.datetime.now().isoformat()
+    now = datetime.datetime.now()
+    last = stats["LAST"]
+    last_dt = datetime.datetime.fromisoformat(last)
+    delta = now - last_dt
+    delta_mins = delta.total_seconds() // 60
+
+    stats["LAST"] = now.isoformat()
+    stats["DELTA"] = int(delta_mins)
+    stats["AGE"] = delta.days
+
     with stats_path.open("w", encoding="utf-8") as f:
         json.dump(stats, f)
 
 
-def update_age(stats: dict, stats_path: Path) -> None:
+def update_health_stats(stats: dict, stats_path: Path) -> None:
     """
-    Record difference in days between birth and last user interaction.
+    Overwrite health-related keys in the stats json file on disk.
 
     Args:
         stats (dict): Pet stats read from the stats json file on disk.
@@ -110,15 +121,32 @@ def update_age(stats: dict, stats_path: Path) -> None:
     Returns:
         None: File is written to disk.
     """
-    born_dt = datetime.datetime.fromisoformat(stats["BORN"])
-    last_dt = datetime.datetime.fromisoformat(stats["LAST"])
-    age_dt = last_dt - born_dt
-    stats["AGE"] = age_dt.days
+    delta = stats["DELTA"]
+    health = stats["HEALTH"]
+
+    health_loss = delta // 60  # lose one health per hour
+    new_health = health - health_loss
+    if new_health < 0:
+        new_health = 0
+
+    stats["HEALTH"] = new_health
+
     with stats_path.open("w", encoding="utf-8") as f:
         json.dump(stats, f)
 
 
-# def calculate_hp_lost(birth_delta: str, current_hp: int) -> int:
+def print_pet() -> None:
+    """
+    Print an image of your pet.
 
-
-# def write_to_stats(key: str, value: str) -> None:
+    Returns:
+        None: Text is printed to the screen.
+    """
+    print(
+        r"                    ",
+        r"   /\__/\           ",
+        r" ={ o x o}=  < meow ",
+        r" L(  u u )           ",
+        r"                    ",
+        sep="\n",
+    )

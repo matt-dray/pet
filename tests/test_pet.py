@@ -13,6 +13,7 @@ def test_write_and_read_stats(tmp_path: Path):
 
     assert data["NAME"] == name
     assert data["BORN"] == data["LAST"]
+    assert data["DELTA"] == 0
     assert data["AGE"] == 0
     assert data["HEALTH"] == 10
 

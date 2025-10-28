@@ -1,5 +1,5 @@
 """
-A virtual pet that lives on the command line and is remembered between terminal sessions.
+A persistent cyberpet that lives on the command line.
 """
 
 from .utils import (
@@ -7,8 +7,9 @@ from .utils import (
     read_stats,
     delete_stats,
     get_datetime,
-    update_latest_time,
-    update_age,
+    update_time_stats,
+    update_health_stats,
+    print_pet,
 )
 
 __all__ = [
@@ -16,6 +17,7 @@ __all__ = [
     "read_stats",
     "delete_stats",
     "get_datetime",
-    "update_latest_time",
-    "update_age",
+    "update_time_stats",
+    "update_health_stats",
+    "print_pet",
 ]

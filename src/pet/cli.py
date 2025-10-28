@@ -11,8 +11,9 @@ from .utils import (
     read_stats,
     delete_stats,
     get_datetime,
-    update_latest_time,
-    update_age,
+    update_time_stats,
+    update_health_stats,
+    print_pet,
 )
 
 
@@ -25,29 +26,41 @@ def main():
             init_stats(stats_path, name)
 
         stats = read_stats(stats_path)
-        update_latest_time(stats, stats_path)
-        update_age(stats, stats_path)
+        update_time_stats(stats, stats_path)
+        stats = read_stats(stats_path)
+        update_health_stats(stats, stats_path)
+        stats = read_stats(stats_path)
+
+        if stats["HEALTH"] <= 0:
+            print("🪫 Uh-oh, your pet's health is low!")
 
         action = inquirer.select(
             message="What would you like to do?",
-            choices=["Check", "Release", "Quit"],
+            choices=["📊 Stats", "👀 See", "❌ Quit", "👋 Release"],
         ).execute()
 
-        if action == "Check":
+        if "Stats" in action:
             birth = get_datetime(stats["BORN"])
-            print(f"Name:   {stats['NAME']}")
-            print(f"Birth:  {birth['DATE']} at {birth['TIME']}")
-            print(f"Age:    {stats['AGE']} days")
-            print(f"Health: {stats['HEALTH']}/10")
+            print(f"📛 Name:   {stats['NAME']}")
+            print(f"🐣 Birth:  {birth['DATE']} at {birth['TIME']}")
+            print(f"📅 Age:    {stats['AGE']} days")
+            print(f"🔋 Health: {stats['HEALTH']}/10")
 
-        if action == "Release":
-            delete_stats(stats_path)
-            print("Your pet is released and its data deleted. Farewell!")
-            break
+        if "See" in action:
+            print_pet()
 
-        if action == "Quit":
+        if "Quit" in action:
             print("Goodbye!")
             break
+
+        if "Release" in action:
+            confirm = inquirer.confirm(
+                message="Are you sure? Your pet will be gone forever!"
+            ).execute()
+            if confirm:
+                delete_stats(stats_path)
+                print("🥲  Your pet was released and its data deleted. Farewell!")
+                break
 
 
 if __name__ == "__main__":
