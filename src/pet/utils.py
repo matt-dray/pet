@@ -135,6 +135,17 @@ def update_health_stats(stats: dict, stats_path: Path) -> None:
         json.dump(stats, f)
 
 
+def feed_pet(stats: dict, stats_path: Path) -> None:
+    health = stats["HEALTH"]
+    health += 1
+    new_health = min(health, 10)
+
+    stats["HEALTH"] = new_health
+
+    with stats_path.open("w", encoding="utf-8") as f:
+        json.dump(stats, f)
+
+
 def print_pet() -> None:
     """
     Print an image of your pet.
@@ -146,7 +157,7 @@ def print_pet() -> None:
         r"                    ",
         r"   /\__/\           ",
         r" ={ o x o}=  < meow ",
-        r" L(  u u )           ",
+        r" L(  u u )          ",
         r"                    ",
         sep="\n",
     )

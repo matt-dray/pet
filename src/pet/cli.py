@@ -13,6 +13,7 @@ from .utils import (
     get_datetime,
     update_time_stats,
     update_health_stats,
+    feed_pet,
     print_pet,
 )
 
@@ -36,7 +37,7 @@ def main():
 
         action = inquirer.select(
             message="What would you like to do?",
-            choices=["📊 Stats", "👀 See", "❌ Quit", "👋 Release"],
+            choices=["📊 Stats", "👀 See", "🍣 Feed", "❌ Quit", "👋 Release"],
         ).execute()
 
         if "Stats" in action:
@@ -52,17 +53,28 @@ def main():
         if "See" in action:
             print_pet()
 
+        if "Feed" in action:
+            if stats["HEALTH"] == 10:
+                print(f"🤢 {stats['NAME']} is full (health = 10).")
+            else:
+                feed_pet(stats, stats_path)
+                print(
+                    f"😋 {stats['NAME']} ate the food (health = stats['HEALTH'] + 1)."
+                )
+
         if "Quit" in action:
-            print("👋 Goodbye!")
+            print(f"👋 Goodbye {stats['NAME']}!")
             break
 
         if "Release" in action:
             confirm = inquirer.confirm(
-                message="🤔 Are you sure? Your pet will be gone forever!"
+                message=f"🤔 Are you sure? {stats['NAME']} will be gone forever..."
             ).execute()
             if confirm:
                 delete_stats(stats_path)
-                print("🥲 Your pet was released and its data deleted. Farewell!")
+                print(
+                    f"🥲 {stats['NAME']} was released and their data deleted. Farewell!"
+                )
                 break
 
 

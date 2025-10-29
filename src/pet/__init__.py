@@ -9,6 +9,7 @@ from .utils import (
     get_datetime,
     update_time_stats,
     update_health_stats,
+    feed_pet,
     print_pet,
 )
 
@@ -19,5 +20,6 @@ __all__ = [
     "get_datetime",
     "update_time_stats",
     "update_health_stats",
+    "feed_pet",
     "print_pet",
 ]
