@@ -96,15 +96,23 @@ def update_time_stats(stats: dict, stats_path: Path) -> None:
     Returns:
         None: File is written to disk.
     """
-    now = datetime.datetime.now()
-    last = stats["LAST"]
-    last_dt = datetime.datetime.fromisoformat(last)
-    delta = now - last_dt
-    delta_mins = delta.total_seconds() // 60
+    born_iso = stats["BORN"]
+    last_iso = stats["LAST"]
 
-    stats["LAST"] = now.isoformat()
-    stats["DELTA"] = int(delta_mins)
-    stats["AGE"] = delta.days
+    birth_dt = datetime.datetime.fromisoformat(born_iso)
+    last_dt = datetime.datetime.fromisoformat(last_iso)
+    now_dt = datetime.datetime.now()
+    now_iso = now_dt.isoformat()
+
+    delta_born = now_dt - birth_dt
+    delta_born_days = delta_born.days
+
+    delta_last = now_dt - last_dt
+    delta_last_mins = int(delta_last.total_seconds() // 60)
+
+    stats["LAST"] = now_iso
+    stats["DELTA"] = delta_last_mins
+    stats["AGE"] = delta_born_days
 
     with stats_path.open("w", encoding="utf-8") as f:
         json.dump(stats, f)
