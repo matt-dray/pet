@@ -1,5 +1,5 @@
 """
-A virtual pet that lives on the command line and is remembered between terminal sessions.
+A persistent cyberpet that lives on the command line.
 """
 
 from .cli import main

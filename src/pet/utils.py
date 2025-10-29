@@ -1,83 +1,163 @@
 """
-Handle pet data.
+Functions to manage pet stats stored in a JSON file on disk.
 """
 
-import datetime as dt
+import datetime
 import json
 from pathlib import Path
 
 
-def write_pet_data(pet_data_path: Path, name: str, timestamp: dt.datetime) -> None:
+def init_stats(stats_path: Path, name: str) -> None:
     """
-    Write pet data.
+    Write initial pet stats to a JSON file on disk.
 
     Args:
-        pet_data_path (Path): The path to the pet data file.
-        name (str): The pet name.
-        timestamp (datettime.datetime) The date-time of pet data creation.
+        stats_path (Path): Path to where the pet's stats json file will be written.
+        name (str): The pet's name provided by the user.
 
     Returns:
-        None: Writes to disk.
+        None: File is written to disk.
     """
-    json_dict = {"NAME": name, "TIMESTAMP": timestamp.isoformat()}
-    pet_data_path.parent.mkdir(parents=True, exist_ok=True)
-    with pet_data_path.open("w", encoding="utf-8") as f:
+    timestamp_now = datetime.datetime.now().isoformat()
+    json_dict = {
+        "NAME": name,
+        "BORN": timestamp_now,
+        "LAST": timestamp_now,
+        "DELTA": 0,  # mins
+        "AGE": 0,  # days
+        "HEALTH": 10,
+    }
+    stats_path.parent.mkdir(parents=True, exist_ok=True)
+    with stats_path.open("w", encoding="utf-8") as f:
         json.dump(json_dict, f)
 
 
-def read_pet_data(pet_data_path: Path) -> dict:
+def read_stats(stats_path: Path) -> dict:
     """
-    Read pet data.
+    Read pet statistics from a JSON file on disk.
 
     Args:
-        pet_data_path (Path): The path to the pet data file.
+        stats_path (Path): Path to the pet's stats file.
 
     Returns:
-        dict: Pet data.
+        dict: A dictionary containing the pet's statistics with keys:
+            - 'NAME' (str): The pet's name.
+            - 'BORN' (str): The datetime of the pet's birth.
+            - 'LAST' (str): The datetime of the last interaction with the pet.
+            - 'DELTA' (str): Difference in minutes from last interaction to now.
+            - 'AGE' (int): The pet's age in days.
+            - 'HEALTH' (int): The pet's health value (out of 10).
     """
-    pet_data_text = pet_data_path.read_text(encoding="utf-8")
-    pet_data_json = json.loads(pet_data_text)
-    return pet_data_json
+    stats_text = stats_path.read_text(encoding="utf-8")
+    stats_json = json.loads(stats_text)
+    return stats_json
 
 
-def delete_pet_data(pet_data_path: Path) -> None:
+def delete_stats(stats_path: Path) -> None:
     """
-    Delete pet data.
+    Delete the stats file on disk.
 
     Args:
-        pet_data_path (Path): The path to the pet data file.
+        stats_path (Path): Path to the pet's stats file.
 
     Returns:
-        None: Pet data on disk deleted.
+        None: File is deleted from disk.
     """
-    if pet_data_path.exists():
-        pet_data_path.unlink()
+    if stats_path.exists():
+        stats_path.unlink()
 
 
-def extract_timestamp(timestamp: str) -> str:
+def get_datetime(timestamp: str) -> dict:
     """
-    Extract timestamp from pet data.
+    Extract a date and time from an ISO timestamp string.
 
     Args:
-        timestamp (str): The path to the pet data file.
+        timestamp (str): The ISO string timestamp for conversion.
 
     Returns:
-        str: Formatted date-time.
+        dict: A dictionary with keys:
+            - 'DATE' (str): The date portion of the ISO timestamp.
+            - 'TIME' (str): The time portion of the ISO timestamp.
     """
-    timestamp_iso = dt.datetime.fromisoformat(timestamp)
-    return timestamp_iso.strftime("%d %B %Y at %H:%M:%S")
+    timestamp_iso = datetime.datetime.fromisoformat(timestamp)
+    date = timestamp_iso.strftime("%d %b %Y")
+    time = timestamp_iso.strftime("%H:%M")
+    return {"DATE": date, "TIME": time}
 
 
-def calculate_time_delta(timestamp: str) -> int:
+def update_time_stats(stats: dict, stats_path: Path) -> None:
     """
-    Calculate difference between now and timestamp from pet data.
+    Overwrite time-related keys in the stats json file on disk.
 
     Args:
-        timestamp (str): The path to the pet data file.
+        stats (dict): Pet stats read from the stats json file on disk.
+        stats_path (Path): Path to where the pet's stats json file will be written.
 
     Returns:
-        int: Elapsed time in seconds.
+        None: File is written to disk.
     """
-    timestamp_iso = dt.datetime.fromisoformat(timestamp)
-    delta = dt.datetime.now() - timestamp_iso
-    return int(delta.total_seconds())
+    now = datetime.datetime.now()
+    last = stats["LAST"]
+    last_dt = datetime.datetime.fromisoformat(last)
+    delta = now - last_dt
+    delta_mins = delta.total_seconds() // 60
+
+    stats["LAST"] = now.isoformat()
+    stats["DELTA"] = int(delta_mins)
+    stats["AGE"] = delta.days
+
+    with stats_path.open("w", encoding="utf-8") as f:
+        json.dump(stats, f)
+
+
+def update_health_stats(stats: dict, stats_path: Path) -> None:
+    """
+    Overwrite health-related keys in the stats json file on disk.
+
+    Args:
+        stats (dict): Pet stats read from the stats json file on disk.
+        stats_path (Path): Path to where the pet's stats json file will be written.
+
+    Returns:
+        None: File is written to disk.
+    """
+    delta = stats["DELTA"]
+    health = stats["HEALTH"]
+
+    health_loss = delta // 60  # lose one health per hour
+    new_health = health - health_loss
+    if new_health < 0:
+        new_health = 0
+
+    stats["HEALTH"] = new_health
+
+    with stats_path.open("w", encoding="utf-8") as f:
+        json.dump(stats, f)
+
+
+def feed_pet(stats: dict, stats_path: Path) -> None:
+    health = stats["HEALTH"]
+    health += 1
+    new_health = min(health, 10)
+
+    stats["HEALTH"] = new_health
+
+    with stats_path.open("w", encoding="utf-8") as f:
+        json.dump(stats, f)
+
+
+def print_pet() -> None:
+    """
+    Print an image of your pet.
+
+    Returns:
+        None: Text is printed to the screen.
+    """
+    print(
+        r"                    ",
+        r"   /\__/\           ",
+        r" ={ o x o}=  < meow ",
+        r" L(  u u )          ",
+        r"                    ",
+        sep="\n",
+    )

@@ -1,51 +1,81 @@
 """
-CLI entry with user input.
+Command-line interface (CLI) for interacting with pet statistics.
+Accepts user input to read, write or delete pet data.
 """
 
-import datetime as dt
 from InquirerPy import inquirer
 from pathlib import Path
 from platformdirs import user_data_dir
 from .utils import (
-    write_pet_data,
-    read_pet_data,
-    delete_pet_data,
-    extract_timestamp,
-    calculate_time_delta,
+    init_stats,
+    read_stats,
+    delete_stats,
+    get_datetime,
+    update_time_stats,
+    update_health_stats,
+    feed_pet,
+    print_pet,
 )
 
 
 def main():
-    pet_data_path = Path(user_data_dir("pet")) / "pet.json"
+    stats_path = Path(user_data_dir("pet")) / "pet.json"
 
     while True:
-        if not pet_data_path.exists():
-            timestamp = dt.datetime.now()
+        if not stats_path.exists():
             name = inquirer.text(message="Your pet's name:").execute()
-            write_pet_data(pet_data_path, name, timestamp)
+            init_stats(stats_path, name)
 
-        stats = read_pet_data(pet_data_path)
+        stats = read_stats(stats_path)
+        update_time_stats(stats, stats_path)
+        stats = read_stats(stats_path)
+        update_health_stats(stats, stats_path)
+        stats = read_stats(stats_path)
+
+        if stats["HEALTH"] <= 0:
+            print("🪫 Uh-oh, your pet's health is low!")
 
         action = inquirer.select(
             message="What would you like to do?",
-            choices=["Check", "Delete", "Quit"],
+            choices=["📊 Stats", "👀 See", "🍣 Feed", "❌ Quit", "👋 Release"],
         ).execute()
 
-        if action == "Check":
-            timestamp = extract_timestamp(stats["TIMESTAMP"])
-            delta = calculate_time_delta(stats["TIMESTAMP"])
-            print(f"Name:  {stats['NAME']}")
-            print(f"Birth: {timestamp}")
-            print(f"Age:   {delta} seconds")
+        if "Stats" in action:
+            birth = get_datetime(stats["BORN"])
+            print(
+                f"📛 Name:   {stats['NAME']}",
+                f"🐣 Birth:  {birth['DATE']} at {birth['TIME']}",
+                f"📅 Age:    {stats['AGE']} days",
+                f"🔋 Health: {stats['HEALTH']}/10",
+                sep="\n",
+            )
 
-        if action == "Delete":
-            delete_pet_data(pet_data_path)
-            print("Pet data deleted. Goodbye!")
+        if "See" in action:
+            print_pet()
+
+        if "Feed" in action:
+            if stats["HEALTH"] == 10:
+                print(f"🤢 {stats['NAME']} is full (health = 10).")
+            else:
+                feed_pet(stats, stats_path)
+                print(
+                    f"😋 {stats['NAME']} ate the food (health = stats['HEALTH'] + 1)."
+                )
+
+        if "Quit" in action:
+            print(f"👋 Goodbye {stats['NAME']}!")
             break
 
-        if action == "Quit":
-            print("Goodbye!")
-            break
+        if "Release" in action:
+            confirm = inquirer.confirm(
+                message=f"🤔 Are you sure? {stats['NAME']} will be gone forever..."
+            ).execute()
+            if confirm:
+                delete_stats(stats_path)
+                print(
+                    f"🥲 {stats['NAME']} was released and their data deleted. Farewell!"
+                )
+                break
 
 
 if __name__ == "__main__":

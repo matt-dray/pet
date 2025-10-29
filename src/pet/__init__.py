@@ -1,19 +1,25 @@
 """
-A virtual pet that lives on the command line and is remembered between terminal sessions.
+A persistent cyberpet that lives on the command line.
 """
 
 from .utils import (
-    write_pet_data,
-    read_pet_data,
-    delete_pet_data,
-    extract_timestamp,
-    calculate_time_delta,
+    init_stats,
+    read_stats,
+    delete_stats,
+    get_datetime,
+    update_time_stats,
+    update_health_stats,
+    feed_pet,
+    print_pet,
 )
 
 __all__ = [
-    "write_pet_data",
-    "read_pet_data",
-    "delete_pet_data",
-    "extract_timestamp",
-    "calculate_time_delta",
+    "init_stats",
+    "read_stats",
+    "delete_stats",
+    "get_datetime",
+    "update_time_stats",
+    "update_health_stats",
+    "feed_pet",
+    "print_pet",
 ]
