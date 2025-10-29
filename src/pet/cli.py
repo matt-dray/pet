@@ -41,25 +41,28 @@ def main():
 
         if "Stats" in action:
             birth = get_datetime(stats["BORN"])
-            print(f"📛 Name:   {stats['NAME']}")
-            print(f"🐣 Birth:  {birth['DATE']} at {birth['TIME']}")
-            print(f"📅 Age:    {stats['AGE']} days")
-            print(f"🔋 Health: {stats['HEALTH']}/10")
+            print(
+                f"📛 Name:   {stats['NAME']}",
+                f"🐣 Birth:  {birth['DATE']} at {birth['TIME']}",
+                f"📅 Age:    {stats['AGE']} days",
+                f"🔋 Health: {stats['HEALTH']}/10",
+                sep="\n",
+            )
 
         if "See" in action:
             print_pet()
 
         if "Quit" in action:
-            print("Goodbye!")
+            print("👋 Goodbye!")
             break
 
         if "Release" in action:
             confirm = inquirer.confirm(
-                message="Are you sure? Your pet will be gone forever!"
+                message="🤔 Are you sure? Your pet will be gone forever!"
             ).execute()
             if confirm:
                 delete_stats(stats_path)
-                print("🥲  Your pet was released and its data deleted. Farewell!")
+                print("🥲 Your pet was released and its data deleted. Farewell!")
                 break
 
 
