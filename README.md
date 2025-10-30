@@ -8,7 +8,13 @@ posts](https://img.shields.io/badge/rostrum.blog-posts-008900?labelColor=000000&
 
 A persistent cyberpet that lives on the command line. 
 
-A very limited proof-of-concept to learn more about packaging-up command-line interfaces (CLIs) made with Pythonand tools like [InquirerPy](https://inquirerpy.readthedocs.io/en/latest/) and [platformdirs](https://platformdirs.readthedocs.io/en/latest/index.html).
+```
+  /\__/\
+={ o x o}=  < meow
+L(  u u )
+```
+
+A very limited proof-of-concept to learn more about packaging-up command-line interfaces (CLIs) made with Python and tools like [InquirerPy](https://inquirerpy.readthedocs.io/en/latest/) and [platformdirs](https://platformdirs.readthedocs.io/en/latest/index.html).
 Will never be feature complete.
 
 To get started:
