@@ -27,13 +27,11 @@ def main():
             init_stats(stats_path, name)
 
         stats = read_stats(stats_path)
-        update_time_stats(stats, stats_path)
-        stats = read_stats(stats_path)
-        update_health_stats(stats, stats_path)
-        stats = read_stats(stats_path)
+        stats = update_time_stats(stats, stats_path)
+        stats = update_health_stats(stats, stats_path)
 
         if stats["HEALTH"] <= 0:
-            print("🪫 Uh-oh, your pet's health is low!")
+            print("🪫 Uh-oh, your pet's health is low! Try 🍣 Feed.")
 
         action = inquirer.select(
             message="What would you like to do?",
@@ -57,9 +55,9 @@ def main():
             if stats["HEALTH"] == 10:
                 print(f"🤢 {stats['NAME']} is full (health = 10).")
             else:
-                feed_pet(stats, stats_path)
+                stats = feed_pet(stats, stats_path)
                 print(
-                    f"😋 {stats['NAME']} ate the food (health = stats['HEALTH'] + 1)."
+                    f"😋 {stats['NAME']} ate the food (health now {stats['HEALTH']}/10)."
                 )
 
         if "Quit" in action:
