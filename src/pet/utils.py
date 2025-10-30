@@ -22,10 +22,10 @@ def init_stats(stats_path: Path, name: str) -> None:
     json_dict = {
         "NAME": name,
         "BORN": timestamp_now,
-        "LAST": timestamp_now,
+        "LAST": timestamp_now,  # last interaction
         "DELTA": 0,  # mins
         "AGE": 0,  # days
-        "HEALTH": 10,
+        "HEALTH": 10,  # 0 to 10
     }
     stats_path.parent.mkdir(parents=True, exist_ok=True)
     with stats_path.open("w", encoding="utf-8") as f:
@@ -85,7 +85,7 @@ def get_datetime(timestamp: str) -> dict:
     return {"DATE": date, "TIME": time}
 
 
-def update_time_stats(stats: dict, stats_path: Path) -> None:
+def update_time_stats(stats: dict, stats_path: Path) -> dict:
     """
     Overwrite time-related keys in the stats json file on disk.
 
@@ -94,7 +94,7 @@ def update_time_stats(stats: dict, stats_path: Path) -> None:
         stats_path (Path): Path to where the pet's stats json file will be written.
 
     Returns:
-        None: File is written to disk.
+        dict: Pet stats.
     """
     born_iso = stats["BORN"]
     last_iso = stats["LAST"]
@@ -117,17 +117,19 @@ def update_time_stats(stats: dict, stats_path: Path) -> None:
     with stats_path.open("w", encoding="utf-8") as f:
         json.dump(stats, f)
 
+    return stats
 
-def update_health_stats(stats: dict, stats_path: Path) -> None:
+
+def update_health_stats(stats: dict, stats_path: Path) -> dict:
     """
-    Overwrite health-related keys in the stats json file on disk.
+    Deplete health key over time in the stats json file on disk.
 
     Args:
         stats (dict): Pet stats read from the stats json file on disk.
         stats_path (Path): Path to where the pet's stats json file will be written.
 
     Returns:
-        None: File is written to disk.
+        dict: Pet stats.
     """
     delta = stats["DELTA"]
     health = stats["HEALTH"]
@@ -142,8 +144,20 @@ def update_health_stats(stats: dict, stats_path: Path) -> None:
     with stats_path.open("w", encoding="utf-8") as f:
         json.dump(stats, f)
 
+    return stats
 
-def feed_pet(stats: dict, stats_path: Path) -> None:
+
+def feed_pet(stats: dict, stats_path: Path) -> dict:
+    """
+    Feed pet to increment health key in the stats json file on disk.
+
+    Args:
+        stats (dict): Pet stats read from the stats json file on disk.
+        stats_path (Path): Path to where the pet's stats json file will be written.
+
+    Returns:
+        dict: Pet stats.
+    """
     health = stats["HEALTH"]
     health += 1
     new_health = min(health, 10)
@@ -152,6 +166,8 @@ def feed_pet(stats: dict, stats_path: Path) -> None:
 
     with stats_path.open("w", encoding="utf-8") as f:
         json.dump(stats, f)
+
+    return stats
 
 
 def print_pet() -> None:
@@ -162,10 +178,8 @@ def print_pet() -> None:
         None: Text is printed to the screen.
     """
     print(
-        r"                    ",
-        r"   /\__/\           ",
+        r"   /\__/\ ",
         r" ={ o x o}=  < meow ",
-        r" L(  u u )          ",
-        r"                    ",
+        r" L(  u u ) ",
         sep="\n",
     )
