@@ -56,7 +56,9 @@ def main():
                 print(f"🤢 {stats['NAME']} is full (health = 10).")
             else:
                 stats = feed_pet(stats, stats_path)
-                print(f"😋 {stats['NAME']} ate the food (health now {stats['HEALTH']}/10).")
+                print(
+                    f"😋 {stats['NAME']} ate the food (health now {stats['HEALTH']}/10)."
+                )
 
         if "Quit" in action:
             print(f"👋 Goodbye {stats['NAME']}!")
